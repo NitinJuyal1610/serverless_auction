@@ -15,7 +15,13 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.438.0",
     "@aws-sdk/lib-dynamodb": "^3.438.0",
+    "@middy/core": "^4.6.5",
+    "@middy/event-normalizer": "^4.6.5",
+    "@middy/http-error-handler": "^4.6.5",
+    "@middy/http-event-normalizer": "^4.6.5",
+    "@middy/http-json-body-parser": "^4.6.5",
     "crypto": "^1.0.1",
+    "http-errors": "^2.0.0",
     "source-map-support": "^0.5.21"
   },
   "license": "MIT"
