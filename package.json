@@ -4,7 +4,7 @@
   "description": "This example demonstrates how to use environment variables for AWS Lambdas.",
   "author": "",
   "devDependencies": {
-    "babel-core": "^6.25.0",
+    "babel-core": "^4.7.16",
     "babel-loader": "^7.1.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-polyfill": "^6.23.0",
@@ -13,7 +13,10 @@
     "webpack": "^5.89.0"
   },
   "dependencies": {
-    "aws-sdk": "^2.1483.0"
+    "@aws-sdk/client-dynamodb": "^3.438.0",
+    "@aws-sdk/lib-dynamodb": "^3.438.0",
+    "crypto": "^1.0.1",
+    "source-map-support": "^0.5.21"
   },
   "license": "MIT"
 }
