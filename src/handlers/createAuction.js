@@ -2,12 +2,8 @@
 import crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
-import httpJsonBodyParser from '@middy/http-json-body-parser';
-import middy from '@middy/core';
-import httpErrorHandler from '@middy/http-error-handler';
-import httpEventNormalizer from '@middy/http-event-normalizer';
 import createHttpError from 'http-errors';
-
+import { commonMiddleware } from '../../lib/commonMiddleware';
 const client = new DynamoDBClient({ region: 'ap-south-1' });
 const docClient = DynamoDBDocumentClient.from(client);
 
@@ -18,6 +14,9 @@ const createAuction = async (event, context) => {
     title: body.title,
     status: 'OPEN',
     createdAt: new Date().toISOString(),
+    highestBid: {
+      amount: 0,
+    },
   };
   const params = {
     TableName: process.env.AUCTIONS_TABLE_NAME,
@@ -39,7 +38,4 @@ const createAuction = async (event, context) => {
   };
 };
 
-export const handler = middy(createAuction)
-  .use(httpJsonBodyParser())
-  .use(httpEventNormalizer())
-  .use(httpErrorHandler());
+export const handler = commonMiddleware(createAuction);
