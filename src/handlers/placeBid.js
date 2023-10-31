@@ -4,7 +4,10 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { commonMiddleware } from '../../lib/commonMiddleware';
 import createHttpError from 'http-errors';
+import validator from '@middy/validator';
+import { transpileSchema } from '@middy/validator/transpile';
 import { getAuctionById } from './getAuction';
+import placeBidSchema from '../../lib/schemas/placeBidSchema';
 
 const client = new DynamoDBClient({ region: 'ap-south-1' });
 const docClient = DynamoDBDocumentClient.from(client);
@@ -15,6 +18,10 @@ const placeBid = async (event, context) => {
   const { amount } = event.body;
 
   const auction = await getAuctionById(id);
+
+  if (auction.status == 'CLOSED') {
+    throw new createHttpError.Forbidden('Cannot bid on an closed auction');
+  }
 
   if (auction.highestBid.amount >= amount) {
     throw new createHttpError.Forbidden(
@@ -47,4 +54,12 @@ const placeBid = async (event, context) => {
   };
 };
 
-export const handler = commonMiddleware(placeBid);
+export const handler = commonMiddleware(placeBid).use(
+  validator({
+    eventSchema: transpileSchema(placeBidSchema),
+    i18nEnabled: false,
+    ajvOptions: {
+      useDefaults: true,
+    },
+  }),
+);
