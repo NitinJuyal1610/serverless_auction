@@ -11,10 +11,13 @@ provider:
   region: ap-south-1
   environment:
     AUCTIONS_TABLE_NAME: ${self:custom.AuctionsTable.name}
+    MAIL_QUEUE_URL: ${self:custom.MailQueue.url}
+    MAIL_QUEUE_ARN: ${self:custom.MailQueue.arn}
   iam:
     role:
       statements:
         - ${file('iam/AuctionsTableIAM.yml'):AuctionsTableIAM}
+        - ${file('iam/MailQueueIAM.yml'):MailQueueIam}
 
 resources:
   Resources:
@@ -61,5 +64,8 @@ custom:
   AuctionsTable:
     name: !Ref AuctionsTable
     arn: !GetAtt AuctionsTable.Arn
+  MailQueue:
+    arn: ${cf:notification-service-${self:provider.stage}.MailQueueArn}
+    url: ${cf:notification-service-${self:provider.stage}.MailQueueUrl}
   bundle:
     linting: false

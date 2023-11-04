@@ -16,11 +16,16 @@ let updatedAuction;
 const placeBid = async (event, context) => {
   const { id } = event.pathParameters;
   const { amount } = event.body;
+  const { email } = event.requestContext.authorizer;
 
   const auction = await getAuctionById(id);
 
+  if (auction.seller === email) {
+    throw new createHttpError.Forbidden('You cannot bid on your own auctions!');
+  }
+
   if (auction.status == 'CLOSED') {
-    throw new createHttpError.Forbidden('Cannot bid on an closed auction');
+    throw new createHttpError.Forbidden('Cannot bid on an closed auction!');
   }
 
   if (auction.highestBid.amount >= amount) {
@@ -29,14 +34,20 @@ const placeBid = async (event, context) => {
     );
   }
 
+  if (auction.highestBid.bidder === email) {
+    throw new createHttpError.Forbidden('Cannot bid on your highest bid!');
+  }
+
   const params = {
     TableName: process.env.AUCTIONS_TABLE_NAME,
     Key: {
       id,
     },
-    UpdateExpression: 'set highestBid.amount = :amount',
+    UpdateExpression:
+      'set highestBid.amount = :amount, highestBid.bidder= :bidder',
     ExpressionAttributeValues: {
       ':amount': amount,
+      ':bidder': email,
     },
     ReturnValues: 'ALL_NEW',
   };

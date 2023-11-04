@@ -12,6 +12,7 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 const createAuction = async (event, context) => {
   const body = event.body;
+  const { email } = event.requestContext.authorizer;
   const now = new Date();
   const endDate = new Date();
   endDate.setHours(now.getHours() + 1);
@@ -24,6 +25,7 @@ const createAuction = async (event, context) => {
     highestBid: {
       amount: 0,
     },
+    seller: email,
   };
   const params = {
     TableName: process.env.AUCTIONS_TABLE_NAME,
@@ -33,7 +35,6 @@ const createAuction = async (event, context) => {
   let status = 201;
   try {
     result = await docClient.send(new PutCommand(params));
-    console.log(`result: ${JSON.stringify(result, null, 2)}`);
   } catch (error) {
     console.error(error);
     throw new createHttpError.InternalServerError(error);
@@ -41,7 +42,7 @@ const createAuction = async (event, context) => {
 
   return {
     statusCode: status,
-    body: JSON.stringify(result),
+    body: JSON.stringify(auction),
   };
 };
 
